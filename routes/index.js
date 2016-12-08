@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var Connection = require('tedious').Connection;  
+var dotenv = require('dotenv');
+
+dotenv.load();
 
 var config = {  
     userName: process.env.DB_USERNAME,
@@ -30,7 +33,6 @@ router.get('/chefs', function(req, res, next) {
 
 /* POST to Add Chef Service */
 router.post('/addchef', function(req, res) {
-
     var chefName = req.body.chefname;
     var chefEmail = req.body.chefemail;
     var chefLocation = req.body.cheflocation;
@@ -45,7 +47,6 @@ router.post('/addchef', function(req, res) {
     request.addParameter('Email', TYPES.VarChar, chefEmail);  
     request.addParameter('Location', TYPES.VarChar, chefLocation);       
     connection.execSql(request);  
-
 });
 
 /* POST to Delete Chef Service */
@@ -60,6 +61,45 @@ router.post('/deletechef', function(req, res) {
           res.render("chefs", { title: 'Admin Portal', message: 'Deleted chef with email ' + chefEmail + ' from database'});
         }});
     request.addParameter('Email', TYPES.VarChar, chefEmail);  
+    connection.execSql(request);  
+});
+
+/* GET chefs page. */
+router.get('/clients', function(req, res, next) {
+  res.render('clients', { title: 'Admin Portal' });
+});
+
+/* POST to Add Client Service */
+router.post('/addclient', function(req, res) {
+
+    var clientName = req.body.clientname;
+    var clientEmail = req.body.clientemail;
+    var clientLocation = req.body.clientlocation;
+
+    request = new Request("INSERT INTO Client (Name, Email, Location) VALUES (@Name, @Email, @Location)", function(err) {  
+        if (err) {  
+            console.log(err);
+        } else {
+          res.render("clients", { title: 'Admin Portal', message: 'Added ' + clientName + ' to database'});
+        }});
+    request.addParameter('Name', TYPES.VarChar, clientName);  
+    request.addParameter('Email', TYPES.VarChar, clientEmail);  
+    request.addParameter('Location', TYPES.VarChar, clientLocation);       
+    connection.execSql(request);  
+});
+
+/* POST to Delete Client Service */
+router.post('/deleteclient', function(req, res) {
+
+    var clientEmail = req.body.clientemail;
+
+    request = new Request("DELETE FROM Client WHERE Email = @Email", function(err) {  
+        if (err) {  
+            console.log(err);
+        } else {
+          res.render("clients", { title: 'Admin Portal', message: 'Deleted client with email ' + clientEmail + ' from database'});
+        }});
+    request.addParameter('Email', TYPES.VarChar, clientEmail);  
     connection.execSql(request);  
 
 });
